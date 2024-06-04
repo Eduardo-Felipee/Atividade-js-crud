@@ -1099,3 +1099,237 @@ class Aplicacao {
 
 const app = new Aplicacao();
 app.menu();
+
+
+
+---------------------------------------------------------------------------------------------------------------------------CRUD DA ESCOLA -----------------------------------------------------------------------------------------------------------------------------------
+
+
+const readlineSync = require('readline-sync');
+
+class Disciplina {
+    static #contadorIds = 0;
+
+    #nome = "";
+    #curso = "";
+    #cargaHoraria = null;
+    #teorica = null;
+    #pratica = null;
+    #nota1 = null;
+    #nota2 = null;
+    #nota3 = null;
+    #nota4 = null;
+
+    constructor(nome, curso, cargaHoraria) {
+        this.#nome = nome;
+        this.#curso = curso;
+        this.#cargaHoraria = cargaHoraria;
+        this.#teorica = this.calcularTeorica();
+        this.#pratica = this.calcularPratica();
+        this.id = ++Disciplina.#contadorIds;
+    }
+
+    calcularTeorica() {
+        if (this.#cargaHoraria === 30) return 15;
+        else if (this.#cargaHoraria === 45) return 30;
+        else if (this.#cargaHoraria === 80) return 40;
+        else if (this.#cargaHoraria === 90) return 45;
+        else return 0;
+    }
+
+    calcularPratica() {
+        if (this.#cargaHoraria === 30) return 15;
+        else if (this.#cargaHoraria === 45) return 15;
+        else if (this.#cargaHoraria === 80) return 40;
+        else if (this.#cargaHoraria === 90) return 45;
+        else return 0;
+    }
+
+    get nome() {
+        return this.#nome;
+    }
+
+    set nome(nome) {
+        this.#nome = nome;
+    }
+
+    get curso() {
+        return this.#curso;
+    }
+
+    set curso(curso) {
+        this.#curso = curso;
+    }
+
+    get cargaHoraria() {
+        return this.#cargaHoraria;
+    }
+
+    set cargaHoraria(cargaHoraria) {
+        this.#cargaHoraria = cargaHoraria;
+        this.#teorica = this.calcularTeorica();
+        this.#pratica = this.calcularPratica();
+    }
+
+    get teorica() {
+        return this.#teorica;
+    }
+
+    get pratica() {
+        return this.#pratica;
+    }
+
+    inserirNota(nota) {
+        if (this.#cargaHoraria === 30 && !this.#nota1) {
+            this.#nota1 = nota;
+        } else if (this.#cargaHoraria === 30 && this.#nota1 && !this.#nota2) {
+            this.#nota2 = nota;
+        } else if (this.#cargaHoraria === 45 && !this.#nota1) {
+            this.#nota1 = nota;
+        } else if (this.#cargaHoraria === 45 && this.#nota1 && !this.#nota2) {
+            this.#nota2 = nota;
+        } else if (this.#cargaHoraria === 45 && this.#nota1 && this.#nota2 && !this.#nota3) {
+            this.#nota3 = nota;
+        } else if (this.#cargaHoraria === 80 && !this.#nota1) {
+            this.#nota1 = nota;
+        } else if (this.#cargaHoraria === 80 && this.#nota1 && !this.#nota2) {
+            this.#nota2 = nota;
+        } else if (this.#cargaHoraria === 80 && this.#nota1 && this.#nota2 && !this.#nota3) {
+            this.#nota3 = nota;
+        } else if (this.#cargaHoraria === 90 && !this.#nota1) {
+            this.#nota1 = nota;
+        } else if (this.#cargaHoraria === 90 && this.#nota1 && !this.#nota2) {
+            this.#nota2 = nota;
+        } else if (this.#cargaHoraria === 90 && this.#nota1 && this.#nota2 && !this.#nota3) {
+            this.#nota3 = nota;
+        } else if (this.#cargaHoraria === 90 && this.#nota1 && this.#nota2 && this.#nota3 && !this.#nota4) {
+            this.#nota4 = nota;
+        } else {
+            console.log("Número máximo de notas atingido para esta disciplina.");
+        }
+    }
+
+    listarNotas() {
+        console.log(`Notas da disciplina ${this.#nome}:`);
+        if (this.#nota1) console.log(`Nota 1: ${this.#nota1}`);
+        if (this.#nota2) console.log(`Nota 2: ${this.#nota2}`);
+        if (this.#nota3) console.log(`Nota 3: ${this.#nota3}`);
+        if (this.#nota4) console.log(`Nota 4: ${this.#nota4}`);
+    }
+}
+
+class Aplicacao {
+    #disciplinas = [];
+
+    cadastrarDisciplina(nome, curso, cargaHoraria) {
+        const existeDisciplina = this.#disciplinas.some(disciplina => disciplina.nome === nome && disciplina.curso === curso);
+        if (existeDisciplina) {
+            console.log("Já existe uma disciplina com esse nome neste curso.");
+            return;
+        }
+        let disciplina = new Disciplina(nome, curso, cargaHoraria);
+        this.#disciplinas.push(disciplina);
+        console.log("Disciplina cadastrada com sucesso!");
+    }
+
+    listarDisciplinas() {
+        if (this.#disciplinas.length === 0) {
+            console.log("Nenhuma disciplina cadastrada.");
+        } else {
+            for (let disciplina of this.#disciplinas) {
+                console.log(`Nome: ${disciplina.nome}`);
+                console.log(`Curso: ${disciplina.curso}`);
+                console.log(`Carga Horária: ${disciplina.cargaHoraria}`);
+                console.log(`Teórica: ${disciplina.teorica}`);
+                console.log(`Prática: ${disciplina.pratica}`);
+                disciplina.listarNotas();
+                console.log('-------------------------');
+            }
+        }
+    }
+
+    atualizarDisciplina(id) {
+        let disciplina = this.#disciplinas.find(d => d.id === parseInt(id));
+        if (disciplina) {
+            let novoNome = readlineSync.question("Digite o novo nome (deixe vazio para manter o atual): ");
+            let novoCurso = readlineSync.question("Digite o novo curso (deixe vazio para manter o atual): ");
+            let novaCargaHoraria = readlineSync.question("Digite a nova carga horária (deixe vazio para manter a atual): ");
+            if (novoNome) disciplina.nome = novoNome;
+            if (novoCurso) disciplina.curso = novoCurso;
+            if (novaCargaHoraria) disciplina.cargaHoraria = parseInt(novaCargaHoraria);
+            console.log("Disciplina atualizada com sucesso!");
+        } else {
+            console.log("Disciplina não encontrada.");
+        }
+    }
+
+    inserirNota(id) {
+        let disciplina = this.#disciplinas.find(d => d.id === parseInt(id));
+        if (disciplina) {
+            let nota = readlineSync.question("Digite a nota a ser inserida (deixe em branco para cancelar): ");
+            if (nota !== "") {
+                disciplina.inserirNota(nota);
+            } else {
+                console.log("Inserção de nota cancelada.");
+            }
+        } else {
+            console.log("Disciplina não encontrada.");
+        }
+    }
+
+    removerDisciplina(id) {
+        let index = this.#disciplinas.findIndex(d => d.id === parseInt(id));
+        if (index !== -1) {
+            this.#disciplinas.splice(index, 1);
+            console.log("Disciplina removida com sucesso!");
+        } else {
+            console.log("Disciplina não encontrada.");
+        }
+    }
+}
+
+const app = new Aplicacao();
+
+function menu() {
+    let opcao;
+    do {
+        console.log("1. Cadastrar disciplina");
+        console.log("2. Listar disciplinas");
+        console.log("3. Atualizar disciplina");
+        console.log("4. Inserir nota");
+        console.log("5. Remover disciplina");
+        opcao = readlineSync.question("Escolha uma opção: ");
+
+        switch (opcao) {
+            case '1':
+                let nome = readlineSync.question("Digite o nome da disciplina: ");
+                let curso = readlineSync.question("Digite o curso da disciplina: ");
+                let cargaHoraria = readlineSync.question("Digite a carga horária da disciplina (30/45/80/90): ");
+                if (![30, 45, 80, 90].includes(parseInt(cargaHoraria))) {
+                    console.log("Carga horária inválida.");
+                    break;
+                }
+                app.cadastrarDisciplina(nome, curso, parseInt(cargaHoraria));
+                break;
+            case '2':
+                app.listarDisciplinas();
+                break;
+            case '3':
+                let idParaAtualizar = readlineSync.question("Digite o ID da disciplina para atualizar: ");
+                app.atualizarDisciplina(idParaAtualizar);
+                break;
+            case '4':
+                let idParaInserirNota = readlineSync.question("Digite o ID da disciplina para inserir nota: ");
+                app.inserirNota(idParaInserirNota);
+                break;
+            case '5':
+                let idParaRemover = readlineSync.question("Digite o ID da disciplina a ser removida: ");
+                app.removerDisciplina(idParaRemover);
+                break;
+            default:
+                console.log("Opção inválida. Tente novamente.");
+        }
+    } while (opcao !== '5');
+}
+
+menu();
